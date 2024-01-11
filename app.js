@@ -3,45 +3,6 @@ dotenv.config({path:'./.env'})
 const express = require('express');
 const app = express();
 
-// let router = express.Router();
-
-// let initWebRoutes = (app)=> {
-//     router.get("/webhook", Response.getWebhook);
-//     router.post("/webhook", Response.postWebhook);
-
-//     return app.use("/", router);
-// };
-
-// module.exports = initWebRoutes;
-
-// app.get('/webhook', (req, res) => {
-//     let body = req.body;
-//     console.log('webhook body',req.body)
-//     if (body.object === 'page') {
-
-//        body.entry.forEach(function(entry) {
-
-//             let webhook_event = entry.messaging[0];
-//             console.log(webhook_event);
-
-//             let sender_psid = webhook_event.sender.id;
-//             console.log('Sender PSID: ' + sender_psid);
-
-//             if (webhook_event.message) {
-//                 // handleMessage(sender_psid, webhook_event.message);
-//             } else if (webhook_event.postback) {
-//                 // handlePostback(sender_psid, webhook_event.postback);
-//             }
-
-//         });
-
-//         res.status(200).send('EVENT_RECEIVED');
-
-//     } else {
-//        res.sendStatus(404);
-//     }
-// })
-
 app.get('/', (req, res) => {
   console.log(process.env.VERIFY_FB_TOKEN)
     res.send('Hello, World!');
@@ -90,13 +51,10 @@ app.get('/webhook', (req, res) => {
 });
 
 app.post('/sendMessengerRequest', function(req, res) {
-    //checking for page subscription.
+    
     if (req.body.object === 'page'){
        
-       /* Iterate over each entry, there can be multiple entries 
-       if callbacks are batched. */
        req.body.entry.forEach(function(entry) {
-       // Iterate over each messaging event
           entry.messaging.forEach(function(event) {
           console.log(event);
           if (event.postback){
@@ -113,23 +71,16 @@ app.post('/sendMessengerRequest', function(req, res) {
   app.post('/webhook', (req, res) => {
     let body = req.body;
 
-    // Check the webhook event is from a Page subscription
     if (body.object === 'page') {
 
-        // Iterate over each entry - there may be multiple if batched
         body.entry.forEach(function(entry) {
 
-            // Gets the body of the webhook event
             let webhook_event = entry.messaging[0];
             console.log(webhook_event);
 
-
-            // Get the sender PSID
             let sender_psid = webhook_event.sender.id;
             console.log('Sender PSID: ' + sender_psid);
 
-            // Check if the event is a message or postback and
-            // pass the event to the appropriate handler function
             if (webhook_event.message) {
                 handleMessage(sender_psid, webhook_event.message);
             } else if (webhook_event.postback) {
@@ -138,11 +89,10 @@ app.post('/sendMessengerRequest', function(req, res) {
 
         });
 
-        // Return a '200 OK' response to all events
         res.status(200).send('EVENT_RECEIVED');
 
     } else {
-        // Return a '404 Not Found' if event is not from a page subscription
+
         res.sendStatus(404);
     }
   });
@@ -154,8 +104,15 @@ app.post('/sendMessengerRequest', function(req, res) {
     console.log('Received message from:', recipientId);
     console.log('Message text:', messageText);
   
-    // You can use the recipientId to send a response or store it for later use
   }
+
+  function handlePostback(sender_psid, received_postback) {
+    let recipientId = sender_psid;
+    let payload = received_postback.payload;
+   
+    console.log('sender_psid:', recipientId);
+    console.log('payload:', payload);
+}
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
