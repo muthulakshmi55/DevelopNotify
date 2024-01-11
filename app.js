@@ -1,6 +1,7 @@
 const dotenv = require('dotenv');
 dotenv.config({path:'./.env'})
 const express = require('express');
+const axios = require('axios');
 const app = express();
 
 app.get('/', (req, res) => {
@@ -50,23 +51,33 @@ app.get('/webhook', (req, res) => {
     }
 });
 
-app.post('/sendMessengerRequest', function(req, res) {
-    
-    if (req.body.object === 'page'){
-       
-       req.body.entry.forEach(function(entry) {
-          entry.messaging.forEach(function(event) {
-          console.log(event);
-          if (event.postback){
-             processPostback(event);
-          } else if (event.message){
-             processMessage(event);
-          }
-      });
-    });
-    res.sendStatus(200);
-   }
-  });
+// app.post('/sendMessengerRequest', async function(req, res) {
+  
+//   try {
+//       let senderId = req.query['senderId'];
+      
+//       await axios.get(`https://graph.facebook.com/v12.0/${senderId}`, {
+//           headers: {
+//               'Accept': 'application/json',
+//               'Accept-Charset': 'utf-8',
+//               'User-Agent': 'test-bot',
+//               'Authorization': `Bearer ${process.env.FB_PAGE_TOKEN}`, // Include the access token in the headers
+//           },
+//           timeout: 5000, // Adjust the timeout as needed
+//       })
+//       .then(response => {
+//           console.log('faceUserInfo', response.data);
+//           res.sendStatus(200);
+//       })
+//       .catch(error => {
+//           console.error('Error fetching user information:', error.message);
+//           res.sendStatus(403);
+//       });
+//   } catch (error) {
+//       console.error('Error sending message:', error.config);
+//       res.sendStatus(404);
+//   }
+// });
 
   app.post('/webhook', (req, res) => {
     let body = req.body;
